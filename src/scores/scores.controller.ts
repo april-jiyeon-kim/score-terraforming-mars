@@ -8,12 +8,23 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
+import { ScoresService } from './scores.service';
+import { ScoreEntity } from './entities/score.entity';
+import { CreateScoreDto } from './dto/create-score.dto';
+import { UpdateScoreDto } from './dto/update-score.dto';
 
 @Controller('scores')
 export class ScoresController {
+  constructor(private readonly scoresService: ScoresService) {}
+
+  @Post()
+  async create(@Body() score: ScoreEntity): Promise<ScoreEntity> {
+    return await this.scoresService.create(score);
+  }
+
   @Get()
-  getAll() {
-    return 'This will return all ';
+  async findAll(): Promise<ScoreEntity[]> {
+    return this.scoresService.findAll();
   }
 
   @Get('search')
@@ -21,24 +32,21 @@ export class ScoresController {
     return `We are searching for a score with a title ${searchingUser}`;
   }
 
-  @Get('/:id')
-  getOne(@Param('id') id: string) {
-    return `This will return one score ${id}`;
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<ScoreEntity> {
+    return this.scoresService.findOne(+id);
   }
 
-  @Post()
-  create(@Body() scoreData) {
-    console.log(scoreData);
-    return scoreData;
+  @Delete(':id')
+  async remove(@Param('id') id: string): Promise<number> {
+    return this.scoresService.remove(+id);
   }
 
-  @Delete('/:id')
-  remove(@Param('id') scoreId: string) {
-    return `This will delete a score with the id ${scoreId}`;
-  }
-
-  @Patch('/:id')
-  patch(@Param('id') scoreId: string, @Body() updatedData) {
-    return { updatedScore: scoreId, ...updatedData };
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() score: ScoreEntity,
+  ): Promise<number> {
+    return this.scoresService.update(+id, score);
   }
 }
